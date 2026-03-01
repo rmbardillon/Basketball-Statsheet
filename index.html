@@ -274,6 +274,8 @@
         function uploadCSV(team) {
             let file = document.getElementById(`${team}-upload`).files[0];
             if (!file) return;
+            let teamName = file.name.replace('.csv', '').replace(/[_-]/g, ' ');
+            document.getElementById(`${team}-name`).value = teamName;
             let reader = new FileReader();
             reader.onload = function (e) {
                 let lines = e.target.result.split('\n').filter(l => l.trim());
@@ -289,6 +291,9 @@
         }
 
         function exportCSV() {
+            let homeName = document.getElementById('home-name').value.replace(/\s+/g, '_');
+            let awayName = document.getElementById('away-name').value.replace(/\s+/g, '_');
+            let today = new Date().toISOString().split('T')[0];
             let csv = '';
             ['home', 'away'].forEach(team => {
                 let teamName = document.getElementById(`${team}-name`).value;
@@ -313,7 +318,7 @@
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
-            a.download = 'basketball_stats_summary.csv';
+            a.download = `${homeName}_vs_${awayName}_${today}.csv`;
             a.click();
         }
 

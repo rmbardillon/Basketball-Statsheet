@@ -1,0 +1,121 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+table {
+    table-layout: fixed;
+}
+
+th, td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 8px !important;
+}
+
+th:nth-child(1), td:nth-child(1) { width: 80px; }
+th:nth-child(2), td:nth-child(2) { width: 150px; }
+th:nth-child(n+3), td:nth-child(n+3) { width: 140px; }
+
+.stat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.stat button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.stat button:first-child {
+    background: #dc3545;
+    color: white;
+}
+
+.stat button:first-child:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+.stat button:last-child {
+    background: #28a745;
+    color: white;
+}
+
+.stat button:last-child:hover {
+    background: #218838;
+    transform: scale(1.1);
+}
+
+.stat span {
+    min-width: 30px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+input.form-control {
+    border: none;
+    text-align: center;
+    background: transparent;
+    color: white;
+}
+
+input.form-control:focus {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    box-shadow: none;
+}
+
+table input {
+    border: none;
+    text-align: center;
+    background: transparent;
+    width: 100%;
+    padding: 4px;
+}
+
+table input:focus {
+    outline: 2px solid #667eea;
+    background: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+@media (max-width: 768px) {
+    th:nth-child(1), td:nth-child(1) { width: 60px; }
+    th:nth-child(2), td:nth-child(2) { width: 120px; }
+    th:nth-child(n+3), td:nth-child(n+3) { width: 120px; }
+    
+    .stat button {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    .stat span {
+        font-size: 16px;
+        min-width: 24px;
+    }
+    
+    th, td {
+        font-size: 12px;
+        padding: 8px 4px !important;
+    }
+}

@@ -4,327 +4,92 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Basketball Stats</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial;
-            padding: 10px;
-            margin: 0;
-        }
-
-        h2 {
-            margin: 10px 0;
-            font-size: 24px;
-        }
-
-        .team-section {
-            margin-bottom: 30px;
-        }
-
-        .team-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .team-name {
-            font-size: 18px;
-            font-weight: bold;
-            padding: 8px;
-            border: 1px solid #ccc;
-            flex: 1;
-            min-width: 150px;
-        }
-
-        .upload-btn {
-            width: auto;
-            height: auto;
-            padding: 8px 12px;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 600px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        th {
-            background: #f5f5f5;
-            position: sticky;
-            top: 0;
-        }
-
-        button {
-            width: 36px;
-            height: 36px;
-            font-size: 18px;
-            margin: 2px;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-
-        input {
-            width: 100%;
-            border: none;
-            text-align: center;
-            font-size: 14px;
-            padding: 4px;
-        }
-
-        .jersey {
-            min-width: 40px;
-        }
-
-        .player {
-            min-width: 100px;
-        }
-
-        .stat {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .stat span {
-            min-width: 24px;
-            font-weight: bold;
-        }
-
-        .export-btn {
-            width: 100%;
-            max-width: 300px;
-            padding: 12px 20px;
-            font-size: 16px;
-            margin: 10px 0 20px 0;
-            cursor: pointer;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 5px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-
-            .team-name {
-                font-size: 16px;
-                padding: 6px;
-            }
-
-            button {
-                width: 32px;
-                height: 32px;
-                font-size: 16px;
-            }
-
-            th,
-            td {
-                padding: 6px 4px;
-                font-size: 13px;
-            }
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-
-    <h2>Basketball Statsheet</h2>
-    <button class="export-btn" onclick="exportCSV()">Export Summary CSV</button>
-
-    <div class="team-section">
-        <div class="team-header">
-            <input class="team-name" id="home-name" value="HOME TEAM" onchange="saveData()">
-            <input type="file" id="home-upload" accept=".csv" style="display:none" onchange="uploadCSV('home')">
-            <button class="upload-btn" onclick="document.getElementById('home-upload').click()">Upload CSV</button>
+    <div class="container-fluid py-4">
+        <h2 class="text-center mb-4">🏀 Basketball Statsheet</h2>
+        <div class="text-center mb-4">
+            <button class="btn btn-success btn-lg" onclick="exportCSV()">📊 Export Summary CSV</button>
         </div>
-        <div class="table-wrapper">
-            <table id="home-stats">
-                <thead>
-                    <tr>
-                        <th>Number</th>
-                        <th>Player Name</th>
-                        <th>Points</th>
-                        <th>Rebounds</th>
-                        <th>Assists</th>
-                        <th>Steals</th>
-                        <th>Blocks</th>
-                        <th>3 Pointers</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
-    <div class="team-section">
-        <div class="team-header">
-            <input class="team-name" id="away-name" value="AWAY TEAM" onchange="saveData()">
-            <input type="file" id="away-upload" accept=".csv" style="display:none" onchange="uploadCSV('away')">
-            <button class="upload-btn" onclick="document.getElementById('away-upload').click()">Upload CSV</button>
-        </div>
-        <div class="table-wrapper">
-            <table id="away-stats">
-                <thead>
-                    <tr>
-                        <th>Number</th>
-                        <th>Player Name</th>
-                        <th>Points</th>
-                        <th>Rebounds</th>
-                        <th>Assists</th>
-                        <th>Steals</th>
-                        <th>Blocks</th>
-                        <th>3 Pointers</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-
-    <script>
-        const stats = ["pts", "reb", "ast", "stl", "blk", "three"];
-        let teams = { home: [], away: [] };
-
-        function createRow(team, i, jersey, name) {
-            let tbody = document.querySelector(`#${team}-stats tbody`);
-            let tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><input class="jersey" value="${jersey}" onchange="saveData()"></td>
-                <td><input class="player" value="${name}" onchange="saveData()"></td>
-                ${stats.map(s => `
-                    <td>
-                        <div class="stat">
-                            <button onclick="change('${team}',${i},'${s}',-1)">-</button>
-                            <span id="${team}_${s}_${i}">0</span>
-                            <button onclick="change('${team}',${i},'${s}',1)">+</button>
+        <div class="team-section">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header text-white" id="home-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <input class="form-control form-control-lg fw-bold" id="home-name" value="HOME TEAM" onchange="updateTeamColor('home')">
                         </div>
-                    </td>`).join("")}
-            `;
-            tbody.appendChild(tr);
-        }
+                        <div class="col-md-6 text-end mt-2 mt-md-0">
+                            <input type="file" id="home-upload" accept=".csv" style="display:none" onchange="uploadCSV('home')">
+                            <button class="btn btn-light" onclick="document.getElementById('home-upload').click()">📁 Upload CSV</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0" id="home-stats">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Number</th>
+                                    <th>Player Name</th>
+                                    <th>Fouls</th>
+                                    <th>Points</th>
+                                    <th>Rebounds</th>
+                                    <th>Assists</th>
+                                    <th>Steals</th>
+                                    <th>Blocks</th>
+                                    <th>3 Pointers</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function change(team, row, stat, val) {
-            let el = document.getElementById(`${team}_${stat}_${row}`);
-            let num = parseInt(el.innerText);
-            num += val;
-            if (num < 0) num = 0;
-            el.innerText = num;
-            saveData();
-        }
+        <div class="team-section">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header text-white" id="away-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <input class="form-control form-control-lg fw-bold" id="away-name" value="AWAY TEAM" onchange="updateTeamColor('away')">
+                        </div>
+                        <div class="col-md-6 text-end mt-2 mt-md-0">
+                            <input type="file" id="away-upload" accept=".csv" style="display:none" onchange="uploadCSV('away')">
+                            <button class="btn btn-light" onclick="document.getElementById('away-upload').click()">📁 Upload CSV</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0" id="away-stats">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Number</th>
+                                    <th>Player Name</th>
+                                    <th>Fouls</th>
+                                    <th>Points</th>
+                                    <th>Rebounds</th>
+                                    <th>Assists</th>
+                                    <th>Steals</th>
+                                    <th>Blocks</th>
+                                    <th>3 Pointers</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function saveData() {
-            let data = { home: { name: document.getElementById('home-name').value, players: [] }, away: { name: document.getElementById('away-name').value, players: [] } };
-            ['home', 'away'].forEach(team => {
-                let tbody = document.querySelector(`#${team}-stats tbody`);
-                let rows = tbody.querySelectorAll('tr');
-                rows.forEach((row, i) => {
-                    let player = { jersey: row.querySelector('.jersey').value, name: row.querySelector('.player').value };
-                    stats.forEach(s => {
-                        player[s] = document.getElementById(`${team}_${s}_${i}`).innerText;
-                    });
-                    data[team].players.push(player);
-                });
-            });
-            localStorage.setItem("basket_stats", JSON.stringify(data));
-        }
-
-        function loadData() {
-            let data = JSON.parse(localStorage.getItem("basket_stats"));
-            if (!data) return;
-            if (data.home?.name) document.getElementById('home-name').value = data.home.name;
-            if (data.away?.name) document.getElementById('away-name').value = data.away.name;
-            ['home', 'away'].forEach(team => {
-                if (data[team]?.players) {
-                    data[team].players.forEach((p, i) => {
-                        if (document.getElementById(`${team}_pts_${i}`)) {
-                            document.querySelector(`#${team}-stats tbody tr:nth-child(${i + 1}) .jersey`).value = p.jersey;
-                            document.querySelector(`#${team}-stats tbody tr:nth-child(${i + 1}) .player`).value = p.name;
-                            stats.forEach(s => {
-                                document.getElementById(`${team}_${s}_${i}`).innerText = p[s];
-                            });
-                        }
-                    });
-                }
-            });
-        }
-
-        function uploadCSV(team) {
-            let file = document.getElementById(`${team}-upload`).files[0];
-            if (!file) return;
-            let teamName = file.name.replace('.csv', '').replace(/[_-]/g, ' ');
-            document.getElementById(`${team}-name`).value = teamName;
-            let reader = new FileReader();
-            reader.onload = function (e) {
-                let lines = e.target.result.split('\n').filter(l => l.trim());
-                let tbody = document.querySelector(`#${team}-stats tbody`);
-                tbody.innerHTML = '';
-                lines.slice(1).forEach((line, i) => {
-                    let [jersey, name] = line.split(',').map(s => s.trim());
-                    if (jersey && name) createRow(team, i, jersey, name);
-                });
-                saveData();
-            };
-            reader.readAsText(file);
-        }
-
-        function exportCSV() {
-            let homeName = document.getElementById('home-name').value.replace(/\s+/g, '_');
-            let awayName = document.getElementById('away-name').value.replace(/\s+/g, '_');
-            let today = new Date().toISOString().split('T')[0];
-            let csv = '';
-            ['home', 'away'].forEach(team => {
-                let teamName = document.getElementById(`${team}-name`).value;
-                csv += `${teamName}\n`;
-                csv += 'Player Name,Jersey Number,Points,Rebounds,Assists,Steals,Blocks,3 Pointers\n';
-                let tbody = document.querySelector(`#${team}-stats tbody`);
-                let rows = tbody.querySelectorAll('tr');
-                rows.forEach((row, i) => {
-                    let name = row.querySelector('.player').value;
-                    let jersey = row.querySelector('.jersey').value;
-                    let pts = document.getElementById(`${team}_pts_${i}`).innerText;
-                    let reb = document.getElementById(`${team}_reb_${i}`).innerText;
-                    let ast = document.getElementById(`${team}_ast_${i}`).innerText;
-                    let stl = document.getElementById(`${team}_stl_${i}`).innerText;
-                    let blk = document.getElementById(`${team}_blk_${i}`).innerText;
-                    let three = document.getElementById(`${team}_three_${i}`).innerText;
-                    csv += `${name},${jersey},${pts},${reb},${ast},${stl},${blk},${three}\n`;
-                });
-                csv += '\n';
-            });
-            let blob = new Blob([csv], { type: 'text/csv' });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = `${homeName}_vs_${awayName}_${today}.csv`;
-            a.click();
-        }
-
-        setTimeout(loadData, 100);
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
 </body>
 
 </html>

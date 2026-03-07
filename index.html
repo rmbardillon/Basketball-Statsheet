@@ -27,8 +27,9 @@
                             </div>
                         </div>
                         <div class="col-md-6 text-end mt-2 mt-md-0">
-                            <input type="file" id="home-upload" accept=".csv" style="display:none" onchange="uploadCSV('home')">
-                            <button class="btn btn-light" onclick="document.getElementById('home-upload').click()">📁 Upload CSV</button>
+                            <select class="form-select" id="home-select" onchange="loadTeam('home')">
+                                <option value="">Select Team</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -67,8 +68,9 @@
                             </div>
                         </div>
                         <div class="col-md-6 text-end mt-2 mt-md-0">
-                            <input type="file" id="away-upload" accept=".csv" style="display:none" onchange="uploadCSV('away')">
-                            <button class="btn btn-light" onclick="document.getElementById('away-upload').click()">📁 Upload CSV</button>
+                            <select class="form-select" id="away-select" onchange="loadTeam('away')">
+                                <option value="">Select Team</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -97,7 +99,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
     <script src="app.js"></script>
 </body>
 

@@ -1,6 +1,7 @@
 const stats = ["pts", "reb", "ast", "stl", "blk", "three", "foul"];
 let teams = { home: [], away: [] };
 let saveTimeout = null;
+let teamRosters = {};
 
 const colorMap = {
     'yellow': '#ffc107',
@@ -136,6 +137,73 @@ function loadData() {
     }
 }
 
+function loadTeam(team) {
+    const select = document.getElementById(`${team}-select`);
+    const teamName = select.value;
+    if (!teamName) return;
+    
+    const tbody = document.querySelector(`#${team}-stats tbody`);
+    if (tbody.querySelectorAll('tr').length > 0) {
+        if (!confirm('Changing teams will clear all current stats. Continue?')) {
+            select.value = '';
+            return;
+        }
+    }
+    
+    document.getElementById(`${team}-name`).value = teamName.toUpperCase();
+    updateTeamColor(team);
+    
+    tbody.innerHTML = '';
+    
+    const roster = teamRosters[teamName.toLowerCase()] || [];
+    roster.forEach((player, i) => {
+        createRow(team, i, player[0], player[1]);
+    });
+    
+    debounceSave();
+}
+
+async function loadTeamRosters() {
+    try {
+        const response = await fetch('Teams/');
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+        const links = Array.from(doc.querySelectorAll('a')).filter(a => a.href.endsWith('.csv'));
+        
+        for (const link of links) {
+            const fileName = link.href.split('/').pop();
+            const teamName = fileName.replace('.csv', '').toLowerCase();
+            try {
+                const res = await fetch(`Teams/${fileName}`);
+                const csvText = await res.text();
+                const lines = csvText.split('\n').filter(l => l.trim());
+                teamRosters[teamName] = lines.slice(1).map(line => {
+                    const [jersey, name] = line.split(',').map(s => s.trim());
+                    return [jersey, name];
+                }).filter(p => p[0] && p[1]);
+            } catch (e) {
+                console.error(`Failed to load ${teamName} roster:`, e);
+            }
+        }
+    } catch (e) {
+        const teamFiles = ['yellow', 'green', 'purple', 'orange'];
+        for (const teamName of teamFiles) {
+            try {
+                const response = await fetch(`Teams/${teamName.charAt(0).toUpperCase() + teamName.slice(1)}.csv`);
+                const text = await response.text();
+                const lines = text.split('\n').filter(l => l.trim());
+                teamRosters[teamName] = lines.slice(1).map(line => {
+                    const [jersey, name] = line.split(',').map(s => s.trim());
+                    return [jersey, name];
+                }).filter(p => p[0] && p[1]);
+            } catch (e) {
+                console.error(`Failed to load ${teamName} roster:`, e);
+            }
+        }
+    }
+}
+
 function uploadCSV(team) {
     const file = document.getElementById(`${team}-upload`).files[0];
     if (!file) return;
@@ -202,10 +270,34 @@ function exportCSV() {
     setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadTeamRosters();
+    
+    Object.keys(teamRosters).forEach(team => {
+        const option1 = document.createElement('option');
+        option1.value = team;
+        option1.textContent = team.charAt(0).toUpperCase() + team.slice(1);
+        document.getElementById('home-select').appendChild(option1);
+        
+        const option2 = document.createElement('option');
+        option2.value = team;
+        option2.textContent = team.charAt(0).toUpperCase() + team.slice(1);
+        document.getElementById('away-select').appendChild(option2);
+    });
+    
     loadData();
     updateTeamColor('home');
     updateTeamColor('away');
+    
+    window.addEventListener('beforeunload', (e) => {
+        const homeRows = document.querySelector('#home-stats tbody').querySelectorAll('tr');
+        const awayRows = document.querySelector('#away-stats tbody').querySelectorAll('tr');
+        if (homeRows.length > 0 || awayRows.length > 0) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+    
     document.body.addEventListener('click', (e) => {
         if (e.target.classList.contains('stat-btn')) {
             const { team, row, stat, val } = e.target.dataset;
@@ -214,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+window.loadTeam = loadTeam;
 window.uploadCSV = uploadCSV;
 window.exportCSV = exportCSV;
 window.saveData = saveData;

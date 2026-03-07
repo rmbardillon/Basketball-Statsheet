@@ -164,42 +164,18 @@ function loadTeam(team) {
 }
 
 async function loadTeamRosters() {
-    try {
-        const response = await fetch('Teams/');
-        const text = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, 'text/html');
-        const links = Array.from(doc.querySelectorAll('a')).filter(a => a.href.endsWith('.csv'));
-        
-        for (const link of links) {
-            const fileName = link.href.split('/').pop();
-            const teamName = fileName.replace('.csv', '').toLowerCase();
-            try {
-                const res = await fetch(`Teams/${fileName}`);
-                const csvText = await res.text();
-                const lines = csvText.split('\n').filter(l => l.trim());
-                teamRosters[teamName] = lines.slice(1).map(line => {
-                    const [jersey, name] = line.split(',').map(s => s.trim());
-                    return [jersey, name];
-                }).filter(p => p[0] && p[1]);
-            } catch (e) {
-                console.error(`Failed to load ${teamName} roster:`, e);
-            }
-        }
-    } catch (e) {
-        const teamFiles = ['yellow', 'green', 'purple', 'orange'];
-        for (const teamName of teamFiles) {
-            try {
-                const response = await fetch(`Teams/${teamName.charAt(0).toUpperCase() + teamName.slice(1)}.csv`);
-                const text = await response.text();
-                const lines = text.split('\n').filter(l => l.trim());
-                teamRosters[teamName] = lines.slice(1).map(line => {
-                    const [jersey, name] = line.split(',').map(s => s.trim());
-                    return [jersey, name];
-                }).filter(p => p[0] && p[1]);
-            } catch (e) {
-                console.error(`Failed to load ${teamName} roster:`, e);
-            }
+    const teamFiles = ['yellow', 'green', 'purple', 'orange'];
+    for (const teamName of teamFiles) {
+        try {
+            const response = await fetch(`Teams/${teamName.charAt(0).toUpperCase() + teamName.slice(1)}.csv`);
+            const text = await response.text();
+            const lines = text.split('\n').filter(l => l.trim());
+            teamRosters[teamName] = lines.slice(1).map(line => {
+                const [jersey, name] = line.split(',').map(s => s.trim());
+                return [jersey, name];
+            }).filter(p => p[0] && p[1]);
+        } catch (e) {
+            console.error(`Failed to load ${teamName} roster:`, e);
         }
     }
 }

@@ -10,18 +10,21 @@
 </head>
 
 <body>
-    <div class="container-fluid py-4">
-        <h2 class="text-center mb-4">🏀Rose Pointe Basketball</h2>
-        <div class="text-center mb-4">
-            <button class="btn btn-success btn-lg" onclick="exportCSV()">📊 Export Summary CSV</button>
+    <div class="container py-2">
+        <h2 class="text-center mb-2">🏀Rose Pointe Basketball</h2>
+        <div class="text-center mb-2">
+            <button class="btn btn-success" onclick="exportCSV()">📊 Export Summary CSV</button>
         </div>
 
         <div class="team-section">
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-2">
                 <div class="card-header text-white" id="home-header">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <input class="form-control form-control-lg fw-bold" id="home-name" value="HOME TEAM" onchange="updateTeamColor('home')">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-control form-control-lg fw-bold" id="home-name" value="HOME TEAM" onchange="updateTeamColor('home')">
+                                <span class="fs-2 fw-bold" id="home-score">0</span>
+                            </div>
                         </div>
                         <div class="col-md-6 text-end mt-2 mt-md-0">
                             <input type="file" id="home-upload" accept=".csv" style="display:none" onchange="uploadCSV('home')">
@@ -34,15 +37,16 @@
                         <table class="table table-hover table-striped mb-0" id="home-stats">
                             <thead class="table-dark">
                                 <tr>
+                                    <th>Starting five</th>
                                     <th>Number</th>
                                     <th>Player Name</th>
-                                    <th>Fouls</th>
                                     <th>Points</th>
                                     <th>Rebounds</th>
                                     <th>Assists</th>
                                     <th>Steals</th>
                                     <th>Blocks</th>
                                     <th>3 Pointers</th>
+                                    <th>Fouls</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -53,11 +57,14 @@
         </div>
 
         <div class="team-section">
-            <div class="card shadow-sm mb-4">
+            <div class="card shadow-sm mb-2">
                 <div class="card-header text-white" id="away-header">
                     <div class="row align-items-center">
                         <div class="col-md-6">
-                            <input class="form-control form-control-lg fw-bold" id="away-name" value="AWAY TEAM" onchange="updateTeamColor('away')">
+                            <div class="d-flex align-items-center gap-3">
+                                <input class="form-control form-control-lg fw-bold" id="away-name" value="AWAY TEAM" onchange="updateTeamColor('away')">
+                                <span class="fs-2 fw-bold" id="away-score">0</span>
+                            </div>
                         </div>
                         <div class="col-md-6 text-end mt-2 mt-md-0">
                             <input type="file" id="away-upload" accept=".csv" style="display:none" onchange="uploadCSV('away')">
@@ -70,15 +77,16 @@
                         <table class="table table-hover table-striped mb-0" id="away-stats">
                             <thead class="table-dark">
                                 <tr>
+                                    <th>Starting five</th>
                                     <th>Number</th>
                                     <th>Player Name</th>
-                                    <th>Fouls</th>
                                     <th>Points</th>
                                     <th>Rebounds</th>
                                     <th>Assists</th>
                                     <th>Steals</th>
                                     <th>Blocks</th>
                                     <th>3 Pointers</th>
+                                    <th>Fouls</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

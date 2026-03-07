@@ -1,4 +1,4 @@
-const stats = ["foul", "pts", "reb", "ast", "stl", "blk", "three"];
+const stats = ["pts", "reb", "ast", "stl", "blk", "three", "foul"];
 let teams = { home: [], away: [] };
 let saveTimeout = null;
 
@@ -33,6 +33,7 @@ function createRow(team, i, jersey, name) {
     const tbody = document.querySelector(`#${team}-stats tbody`);
     const tr = document.createElement("tr");
     tr.innerHTML = `
+        <td><input type="checkbox" class="starter" onchange="debounceSave()"></td>
         <td><input class="jersey" value="${sanitizeHTML(jersey)}" onchange="debounceSave()"></td>
         <td><input class="player" value="${sanitizeHTML(name)}" onchange="debounceSave()"></td>
         ${stats.map(s => `
@@ -52,7 +53,19 @@ function change(team, row, stat, val) {
     let num = parseInt(el.innerText) || 0;
     num = Math.max(0, Math.min(999, num + val));
     el.innerText = num;
+    updateScore(team);
     debounceSave();
+}
+
+function updateScore(team) {
+    const tbody = document.querySelector(`#${team}-stats tbody`);
+    const rows = tbody.querySelectorAll('tr');
+    let total = 0;
+    rows.forEach((row, i) => {
+        const pts = document.getElementById(`${team}_pts_${i}`);
+        if (pts) total += parseInt(pts.innerText) || 0;
+    });
+    document.getElementById(`${team}-score`).innerText = total;
 }
 
 function debounceSave() {
@@ -72,7 +85,8 @@ function saveData() {
             rows.forEach((row, i) => {
                 const player = { 
                     jersey: row.querySelector('.jersey').value, 
-                    name: row.querySelector('.player').value 
+                    name: row.querySelector('.player').value,
+                    starter: row.querySelector('.starter').checked
                 };
                 stats.forEach(s => {
                     const el = document.getElementById(`${team}_${s}_${i}`);
@@ -80,6 +94,7 @@ function saveData() {
                 });
                 data[team].players.push(player);
             });
+            updateScore(team);
         });
         localStorage.setItem("basket_stats", JSON.stringify(data));
     } catch (e) {
@@ -106,12 +121,14 @@ function loadData() {
                     if (document.getElementById(`${team}_pts_${i}`)) {
                         document.querySelector(`#${team}-stats tbody tr:nth-child(${i + 1}) .jersey`).value = p.jersey;
                         document.querySelector(`#${team}-stats tbody tr:nth-child(${i + 1}) .player`).value = p.name;
+                        document.querySelector(`#${team}-stats tbody tr:nth-child(${i + 1}) .starter`).checked = p.starter || false;
                         stats.forEach(s => {
                             const el = document.getElementById(`${team}_${s}_${i}`);
                             if (el) el.innerText = p[s] || 0;
                         });
                     }
                 });
+                updateScore(team);
             }
         });
     } catch (e) {
@@ -159,20 +176,20 @@ function exportCSV() {
     ['home', 'away'].forEach(team => {
         const teamName = document.getElementById(`${team}-name`).value;
         csv += `${teamName}\n`;
-        csv += 'Player Name,Jersey Number,Fouls,Points,Rebounds,Assists,Steals,Blocks,3 Pointers\n';
+        csv += 'Player Name,Jersey Number,Points,Rebounds,Assists,Steals,Blocks,3 Pointers,Fouls\n';
         const tbody = document.querySelector(`#${team}-stats tbody`);
         const rows = tbody.querySelectorAll('tr');
         rows.forEach((row, i) => {
             const name = row.querySelector('.player').value;
             const jersey = row.querySelector('.jersey').value;
-            const foul = document.getElementById(`${team}_foul_${i}`)?.innerText || '0';
             const pts = document.getElementById(`${team}_pts_${i}`)?.innerText || '0';
             const reb = document.getElementById(`${team}_reb_${i}`)?.innerText || '0';
             const ast = document.getElementById(`${team}_ast_${i}`)?.innerText || '0';
             const stl = document.getElementById(`${team}_stl_${i}`)?.innerText || '0';
             const blk = document.getElementById(`${team}_blk_${i}`)?.innerText || '0';
             const three = document.getElementById(`${team}_three_${i}`)?.innerText || '0';
-            csv += `${name},${jersey},${foul},${pts},${reb},${ast},${stl},${blk},${three}\n`;
+            const foul = document.getElementById(`${team}_foul_${i}`)?.innerText || '0';
+            csv += `${name},${jersey},${pts === '0' ? '' : pts},${reb === '0' ? '' : reb},${ast === '0' ? '' : ast},${stl === '0' ? '' : stl},${blk === '0' ? '' : blk},${three === '0' ? '' : three},${foul === '0' ? '' : foul}\n`;
         });
         csv += '\n';
     });
